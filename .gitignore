@@ -127,3 +127,5 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+Forecast_Submissions/raw.githubusercontent.com/
