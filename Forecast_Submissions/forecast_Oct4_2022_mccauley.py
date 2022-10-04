@@ -196,7 +196,8 @@ r2_twoweek = np.around(two_week_regression.score(x,y), 3)
 #       matches what the model expects.
 regression_input = weekly_df.iloc[[-1]]
 
-#TODO: Your code here
+#TODO: Your code here 
+# I just manually calculated using y=mx+b instead of the .predict but that also would work!
 one_week_prediction = (m_oneweek*regression_input) + b_oneweek
 two_week_prediction = (m_twoweek*one_week_prediction) + b_twoweek
 
