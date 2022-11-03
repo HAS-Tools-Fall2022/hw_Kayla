@@ -134,6 +134,7 @@ day_search = 283
 df_datesearch = verde_df.loc[verde_df['yday'] == day_search] # all values for the date being searched
 df_datesearch_meanall = df_datesearch.mean() #average of all columns for that day across all years
 
+
 #%%
 # ----------------------------------------------------------------------------
 # ========== NEW DATASET =====================================================
