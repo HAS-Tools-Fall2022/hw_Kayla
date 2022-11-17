@@ -39,8 +39,15 @@ def download_gridmet_variable(variable, year):
 downloaded_files = []
 
 #TODO: Your code here
-year = None
-variables_to_download = None
+year = 2020
+variables_to_download = ['pet', 'srad', 'vpd']
+
+for x in range (0, len(variables_to_download)):
+    file = download_gridmet_variable(variables_to_download[x], year)
+    downloaded_files.append(file)
+
+
+
 
 print('Done downloading data!')
 print(downloaded_files)
@@ -57,7 +64,7 @@ print(downloaded_files)
 # what's in the data.
 
 # TODO: Your code here
-ds = None
+ds = [xr.open_mfdataset(x) for x in downloaded_files] #list comprehnseion allows us to forgo another loop
 ds
 
 #%%
@@ -69,7 +76,10 @@ ds
 # dataset.
 
 #TODO: Your code here
-ds = None
+
+rangeloop = range(0, len(ds)) # looping from 0 to 2 to look at each df
+
+ds = [ds[x].drop_vars('crs') for x in rangeloop]
 ds
 
 #%%
@@ -81,8 +91,11 @@ ds
 # of the dataset is and print that out.
 
 # TODO: Your code here
-attrs = None
-print(None)
+attrs = [ds[x].attrs for x in rangeloop]
+attrs_authors = [attrs[x]['author'] for x in rangeloop]
+
+
+print(attrs_authors)
 
 #%%
 # Step 4:
@@ -93,11 +106,12 @@ print(None)
 # To do so, look at each variable's "description"
 # and "units" in the variables attributes. 
 # Print them out below.
+ds = xr.merge(ds) #correcting my list comprhension stuff
 
 #TODO: Your code here
 for var in ds:
-    description = None
-    units = None
+    description = ds[var].attrs['description']
+    units = ds[var].attrs['units']
     print(description, units)
 
 
@@ -107,7 +121,7 @@ for var in ds:
 # and assign it to the `first_ds` variable
 
 # TODO: Your code here
-first_ds = None
+first_ds = ds.isel(day=0)
 
 # %%
 # Step 6:
@@ -115,14 +129,17 @@ first_ds = None
 # make a spatial plot of the variable 
 # "mean_vapor_pressure_deficit".
 
-#TODO: Your code here
+#TODO: 
+first_ds['mean_vapor_pressure_deficit'].plot() 
 
 # %%
 # Step 7:
 # Similarly, make a spatial plot of the variable
 # "potential_evapotranspiration".
 
-#TODO: Your code here
+#TODO: 
+
+first_ds['potential_evapotranspiration'].plot()
 
 # %%
 # Step 8:
@@ -130,8 +147,9 @@ first_ds = None
 # and 20th to 40th entries of longitude
 # from the full `ds`
 
+
 #TODO: Your code here
-subset_ds = None
+subset_ds = ds.isel(lat=slice(0,30), lon = slice(20,40))
 subset_ds
 
 #%%
@@ -142,18 +160,21 @@ subset_ds
 # and "lon" dimensions.
 
 # TODO: Your code here
-spatial_mean_ds = None
+spatial_mean_ds = subset_ds.mean(['lat','lon'])
 spatial_mean_ds
 
 # %%
 # Step 10:
 # Now make a plot with 2 axes. On the firsrt
-# axis plot the "potential_evapotranspration"
+# axis plot the "potential_evapotranspiration"
 # and on the second plot the "mean_vapor_pressure_deficit"
 # Do these look correlated to you?
 fig, axes = plt.subplots(2, 1, figsize=(12, 8))
 
 # TODO: Your code here
+spatial_mean_ds['potential_evapotranspiration'].plot(ax=axes[0])
+spatial_mean_ds['mean_vapor_pressure_deficit'].plot(ax=axes[1])
+
 
 # %%
 # Step 11:
@@ -163,6 +184,9 @@ fig, axes = plt.subplots(2, 1, figsize=(12, 8))
 # version so use that background to get started.
 
 # TODO: Your code here
+#fig, axes = plt.subplots(2, 1, figsize=(12, 8))
+spatial_mean_ds.plot.scatter(x= 'mean_vapor_pressure_deficit', y='potential_evapotranspiration')
+
 
 
 # %%
@@ -174,8 +198,8 @@ fig, axes = plt.subplots(2, 1, figsize=(12, 8))
 
 # TODO: Your code here
 np.corrcoef(
-    None,
-    None
+    x= spatial_mean_ds['mean_vapor_pressure_deficit'], 
+    y=spatial_mean_ds['potential_evapotranspiration'],
 )
 
 
@@ -197,10 +221,10 @@ np.corrcoef(
 # extra grid cells.
 
 #TODO: Your code here
-coarse_amount = None
+coarse_amount = 4
 
 coarse_ds = ds.coarsen(
-    coarse_amount, 
+    lat = coarse_amount, lon = coarse_amount,
     boundary='trim'
 ).mean()
 coarse_ds
@@ -212,7 +236,8 @@ coarse_ds
 # over the "day", "dimension". 
 
 # TODO: Your code here
-correlation = None
+correlation = xr.corr(coarse_ds['mean_vapor_pressure_deficit'], 
+    coarse_ds['potential_evapotranspiration'], dim="day")
 correlation
 
 # %%
@@ -231,7 +256,7 @@ correlation
 # do these variables tend to be decoupled?
 
 # TODO: Your code here
-
+correlation.plot() 
 
 # %%
 # Congratulations that's it for this assignment!
